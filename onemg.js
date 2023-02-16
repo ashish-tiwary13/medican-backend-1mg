@@ -20,7 +20,6 @@ const two =  async(search) =>{
       executablePath: await chrome.executablePath,
       headless: true,
       ignoreHTTPSErrors: true,
-      browserWSEndpoint,
     };
   }
   
