@@ -1,17 +1,18 @@
 let chrome = {};
 let puppeteer;
 
+
 if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-    chrome = require("chrome-aws-lambda");
-    puppeteer = require("puppeteer-core");
-  } else {
-    puppeteer = require("puppeteer");
-  }
+  chrome = require("chrome-aws-lambda");
+  puppeteer = require("puppeteer-core");
+} else {
+  puppeteer = require("puppeteer");
+}
 
 
 const two =  async(search) =>{
   let options = {};
-
+  
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     options = {
       args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
@@ -19,11 +20,19 @@ const two =  async(search) =>{
       executablePath: await chrome.executablePath,
       headless: true,
       ignoreHTTPSErrors: true,
+      browserWSEndpoint,
     };
   }
-
+  
   try {
     let browser = await puppeteer.launch(options);
+    const browserWSEndpoint = browser.wsEndpoint();
+  
+    browser.disconnect();
+    //
+    browser = await puppeteer.connect({
+      browserWSEndpoint,
+    });
 
     let page = await browser.newPage();
     await page.goto(`https://www.1mg.com/search/all?name=${search}`);
@@ -106,7 +115,7 @@ return pharmas;
 });
 // console.log(search)
 await page.close();
-      await browser.close();
+      await browser.disconnect();
       return data;
     } catch (err) {
       console.error(err);

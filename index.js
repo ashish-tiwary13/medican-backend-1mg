@@ -17,7 +17,9 @@ app.post("/api", async (req, res) => {
    }
 
    try {
+    const start = Date.now();
     const json = await pharmaOneMg.getOneMg(search);
+    console.log('Took', Date.now() - start, 'ms');
     res.send(json);
 
 
